@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFPE MAVELIKARA FINANCIAL LEDGER</title>
+  <style>
+    :root {
+      --primary: #a00000;
+      --primary-dark: #770000;
+      --primary-light: #fff5f5;
+      --income: #238636;
+      --income-bg: #dafbe1;
+      --expense: #cf222e;
+      --expense-bg: #ffebe9;
+      --pending: #d9480f;
+      --pending-bg: #fff4e6;
+      --text: #1f2328;
+      --text-muted: #656d76;
+      --border: #d0d7de;
+      --bg: #f6f8fa;
+      --card-bg: #ffffff;
+      --b1: #0969da;
+      --b2: #1a7f37;
+      --b3: #8250df;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; line-height: 1.45; }
+
+    /* Top Banner */
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-logo-badge {
+      width: 52px;
+      height: 52px;
+      background: #ffffff;
+      border-radius: 50%;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+    .header-branding h1 { 
+      font-size: 1.4rem; 
+      font-weight: 800; 
+      letter-spacing: 0.6px; 
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .header-branding p { 
+      opacity: 0.9; 
+      font-size: 0.82rem; 
+      font-weight: 400; 
+      color: #ffcccc;
+    }
+
+    .user-pill {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn {
+      padding: 7px 13px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .btn:active { transform: translateY(0); }
+    .btn-light { background: #fff; color: var(--primary-dark); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-success { background: var(--income); color: #fff; }
+    .btn-danger { background: var(--expense); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* Summary Section */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .card-title { 
+      font-size: 0.74rem; 
+      text-transform: uppercase; 
+      font-weight: 700; 
+      color: var(--text-muted); 
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+    .card-value { font-size: 1.45rem; font-weight: 800; }
+    .card-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 6px; }
+
+    /* Navigation Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 1px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 9px 18px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: #fff;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 980px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    form label, .form-label { 
+      display: block; 
+      font-size: 0.78rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.3px; 
+      color: #444; 
+      margin-top: 10px; 
+      margin-bottom: 4px; 
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.86rem;
+      background: #fff;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(160,0,0,0.12); }
+
+    /* Split panel box */
+    .split-config {
+      background: #fff8f8;
+      border: 1px dashed var(--primary);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .split-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 0.82rem;
+    }
+    .split-row input { width: 100px; padding: 5px 8px; font-weight: 600; text-align: right; }
+
+    /* Tables & Badges */
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th, td { padding: 9px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+    th { background: #f6f8fa; font-weight: 700; color: #495057; white-space: nowrap; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.4px; }
+    tr:hover { background-color: #fafbfc; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-income { background: var(--income-bg); color: var(--income); }
+    .badge-expense { background: var(--expense-bg); color: var(--expense); }
+    .badge-pending { background: var(--pending-bg); color: var(--pending); }
+    .badge-settled { background: var(--income-bg); color: var(--income); }
+    .badge-b1 { background: #e7f5ff; color: var(--b1); }
+    .badge-b2 { background: #e6fcf5; color: var(--b2); }
+    .badge-b3 { background: #f3f0ff; color: var(--b3); }
+
+    /* Report Styles */
+    .report-filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: #fafbfc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+      align-items: end;
+    }
+
+    .report-sheet {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-top: 14px;
+    }
+
+    .report-header-formal {
+      text-align: center;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .report-logo-circle {
+      width: 65px;
+      height: 65px;
+      margin-bottom: 4px;
+    }
+
+    .report-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: #f8f9fa;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .report-summary-boxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .rep-stat-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .rep-stat-val { font-size: 1.25rem; font-weight: 800; margin-top: 4px; }
+
+    .signature-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 44px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border);
+      text-align: center;
+    }
+    .sig-line {
+      margin-top: 40px;
+      border-top: 1px solid #444;
+      padding-top: 6px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .sig-role {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-box {
+      background: #fff;
+      padding: 28px 24px;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+      border-top: 6px solid var(--primary);
+    }
+    .login-logo-container {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 12px;
+      background: #ffffff;
+      border-radius: 50%;
+      padding: 6px;
+      box-shadow: 0 4px 12px rgba(160,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Print Formatting */
+    @media print {
+      body { background: #fff !important; padding: 0 !important; color: #000 !important; }
+      header, .tab-bar, .report-filter-bar, .action-bar, .user-pill, #loginModal, #pwdModal, .summary-grid { display: none !important; }
+      #tabReports { display: block !important; }
+      .report-sheet { border: none !important; box-shadow: none !important; padding: 0 !important; }
+      th { background-color: #eee !important; color: #000 !important; }
+      .signature-container { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NFPE Standard Inline SVG Definition Template -->
+  <svg style="display: none;">
+    <defs>
+      <!-- Reusable NFPE Official Circular 6-Hands & Central Acronym Emblem -->
+      <g id="nfpe-official-logo" viewBox="0 0 400 400">
+        <circle cx="200" cy="200" r="195" fill="#ffffff" stroke="#c00000" stroke-width="6"/>
+        
+        <!-- Central NFPE Acronym -->
+        <g fill="#c00000">
+          <path d="M 160 180 L 160 220 L 168 220 L 168 196 L 179 220 L 187 220 L 187 180 L 179 180 L 179 204 L 168 180 Z"/>
+          <path d="M 193 180 L 193 220 L 201 220 L 201 204 L 212 204 L 212 197 L 201 197 L 201 187 L 214 187 L 214 180 Z"/>
+          <path d="M 220 180 L 220 220 L 228 220 L 228 205 L 236 205 C 243 205 247 201 247 192.5 C 247 184 243 180 236 180 Z M 228 187 L 235 187 C 238.5 187 240 189 240 192.5 C 240 196 238.5 198 235 198 L 228 198 Z"/>
+          <path d="M 252 180 L 252 220 L 271 220 L 271 213 L 260 213 L 260 203.5 L 269 203.5 L 269 196.5 L 260 196.5 L 260 187 L 271 187 L 271 180 Z"/>
+        </g>
+
+        <!-- 6 Stylized Solidary Hands revolving in clockwise union formation -->
+        <g fill="#c00000">
+          <g transform="translate(200,200) rotate(0) translate(-200,-200)">
+            <path d="M 175 42 C 190 38 215 40 232 52 C 248 64 256 82 254 99 C 242 98 230 102 222 110 C 214 118 212 128 215 137 C 205 136 195 130 187 122 C 172 108 163 88 165 67 C 166 56 170 46 175 42 Z"/>
+            <path d="M 234 52 L 250 63 L 244 70 L 230 60 Z"/>
+            <path d="M 243 65 L 258 77 L 252 83 L 238 72 Z"/>
+            <path d="M 250 79 L 263 92 L 257 97 L 244 86 Z"/>
+            <path d="M 253 94 L 262 107 L 255 111 L 247 100 Z"/>
+          </g>
+          <g transform="translate(200,200) rotate(60) translate(-200,-200)">
+            <path d="M 175 42 C 190 38 215 40 232 52 C 248 64 256 82 254 99 C 242 98 230 102 222 110 C 214 118 212 128 215 137 C 205 136 195 130 187 122 C 172 108 163 88 165 67 C 166 56 170 46 175 42 Z"/>
+            <path d="M 234 52 L 250 63 L 244 70 L 230 60 Z"/>
+            <path d="M 243 65 L 258 77 L 252 83 L 238 72 Z"/>
+            <path d="M 250 79 L 263 92 L 257 97 L 244 86 Z"/>
+            <path d="M 253 94 L 262 107 L 255 111 L 247 100 Z"/>
+          </g>
+          <g transform="translate(200,200) rotate(120) translate(-200,-200)">
+            <path d="M 175 42 C 190 38 215 40 232 52 C 248 64 256 82 254 99 C 242 98 230 102 222 110 C 214 118 212 128 215 137 C 205 136 195 130 187 122 C 172 108 163 88 165 67 C 166 56 170 46 175 42 Z"/>
+            <path d="M 234 52 L 250 63 L 244 70 L 230 60 Z"/>
+            <path d="M 243 65 L 258 77 L 252 83 L 238 72 Z"/>
+            <path d="M 250 79 L 263 92 L 257 97 L 244 86 Z"/>
+            <path d="M 253 94 L 262 107 L 255 111 L 247 100 Z"/>
+          </g>
+          <g transform="translate(200,200) rotate(180) translate(-200,-200)">
+            <path d="M 175 42 C 190 38 215 40 232 52 C 248 64 256 82 254 99 C 242 98 230 102 222 110 C 214 118 212 128 215 137 C 205 136 195 130 187 122 C 172 108 163 88 165 67 C 166 56 170 46 175 42 Z"/>
+            <path d="M 234 52 L 250 63 L 244 70 L 230 60 Z"/>
+            <path d="M 243 65 L 258 77 L 252 83 L 238 72 Z"/>
+            <path d="M 250 79 L 263 92 L 257 97 L 244 86 Z"/>
+            <path d="M 253 94 L 262 107 L 255 111 L 247 100 Z"/>
+          </g>
+          <g transform="translate(200,200) rotate(240) translate(-200,-200)">
+            <path d="M 175 42 C 190 38 215 40 232 52 C 248 64 256 82 254 99 C 242 98 230 102 222 110 C 214 118 212 128 215 137 C 205 136 195 130 187 122 C 172 108 163 88 165 67 C 166 56 170 46 175 42 Z"/>
+            <path d="M 234 52 L 250 63 L 244 70 L 230 60 Z"/>
+            <path d="M 243 65 L 258 77 L 252 83 L 238 72 Z"/>
+            <path d="M 250 79 L 263 92 L 257 97 L 244 86 Z"/>
+            <path d="M 253 94 L 262 107 L 255 111 L 247 100 Z"/>
+          </g>
+          <g transform="translate(200,200) rotate(300) translate(-200,-200)">
+            <path d="M 175 42 C 190 38 215 40 232 52 C 248 64 256 82 254 99 C 242 98 230 102 222 110 C 214 118 212 128 215 137 C 205 136 195 130 187 122 C 172 108 163 88 165 67 C 166 56 170 46 175 42 Z"/>
+            <path d="M 234 52 L 250 63 L 244 70 L 230 60 Z"/>
+            <path d="M 243 65 L 258 77 L 252 83 L 238 72 Z"/>
+            <path d="M 250 79 L 263 92 L 257 97 L 244 86 Z"/>
+            <path d="M 253 94 L 262 107 L 255 111 L 247 100 Z"/>
+          </g>
+        </g>
+      </g>
+    </defs>
+  </svg>
+
+  <!-- Fullscreen Login Modal with Official Logo -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="text-align:center; margin-bottom: 20px;">
+        <div class="login-logo-container">
+          <svg style="width: 100%; height: 100%;" viewBox="0 0 400 400">
+            <use href="#nfpe-official-logo"/>
+          </svg>
+        </div>
+        <h2 style="color:var(--primary); font-size:1.25rem; font-weight:800; letter-spacing:0.5px;">NFPE MAVELIKARA FINANCIAL LEDGER</h2>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Divisional Multi-Branch Accounts &amp; Expense Portal</p>
+      </div>
+      <form onsubmit="handleLogin(event)">
+        <label>Select Branch / Executive Role</label>
+        <select id="loginRole" required>
+          <option value="b1">Branch 1: AIPEU GROUP C P3</option>
+          <option value="b2">Branch 2: POSTMAN/MTS</option>
+          <option value="b3">Branch 3: AIGDSU</option>
+          <option value="admin">Divisional General Secretary / Auditor (Full Access)</option>
+        </select>
+        <label>Treasurer / Admin Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password" required />
+        <div style="font-size:0.75rem; color:#868e96; margin-top:8px; line-height: 1.4;">
+          Default demo keys: <code>b1pass</code>, <code>b2pass</code>, <code>b3pass</code>, <code>adminpass</code>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:18px; padding:10px; font-size:0.9rem;">
+          Secure Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Header Banner -->
+  <header>
+    <div class="header-branding">
+      <div class="header-logo-badge">
+        <svg style="width: 100%; height: 100%;" viewBox="0 0 400 400">
+          <use href="#nfpe-official-logo"/>
+        </svg>
+      </div>
+      <div>
+        <h1>NFPE MAVELIKARA</h1>
+        <p>Financial Ledger &amp; Multi-Branch Expense Management System</p>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div class="user-pill">
+        <span>Logged as: <strong id="userDisplay">...</strong></span>
+        <button class="btn btn-light" style="padding:3px 9px; font-size:0.75rem;" onclick="logout()">Logout</button>
+      </div>
+      <button class="btn btn-light" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-light" onclick="backupJSON()">Backup Data</button>
+      <button class="btn btn-light" onclick="document.getElementById('importFile').click()">Restore</button>
+      <input type="file" id="importFile" style="display:none" onchange="restoreJSON(event)" />
+      <button class="btn btn-outline" style="background:rgba(255,255,255,0.2); color:#fff; border-color:rgba(255,255,255,0.4);" onclick="openPasswordSettings()">Keys</button>
+    </div>
+  </header>
+
+  <!-- Summary Cards -->
+  <section class="summary-grid">
+    <div class="card">
+      <div class="card-title">NFPE Mavelikara Treasury</div>
+      <div class="card-value" id="netUnion">₹0.00</div>
+      <div class="card-meta">Inflow: <span id="totIn" style="color:var(--income); font-weight:600;">₹0</span> | Outflow: <span id="totOut" style="color:var(--expense); font-weight:600;">₹0</span></div>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--b1);">
+      <div class="card-title">AIPEU GROUP C P3 (50%)</div>
+      <div class="card-value" id="b1_net">₹0.00</div>
+      <div class="card-meta">
+        Recv Due: <span id="b1_toRecv" style="color:var(--income); font-weight:600;">₹0</span> | Owed: <span id="b1_toPay" style="color:var(--pending); font-weight:600;">₹0</span>
+      </div>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--b2);">
+      <div class="card-title">POSTMAN / MTS (25%)</div>
+      <div class="card-value" id="b2_net">₹0.00</div>
+      <div class="card-meta">
+        Recv Due: <span id="b2_toRecv" style="color:var(--income); font-weight:600;">₹0</span> | Owed: <span id="b2_toPay" style="color:var(--pending); font-weight:600;">₹0</span>
+      </div>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--b3);">
+      <div class="card-title">AIGDSU (25%)</div>
+      <div class="card-value" id="b3_net">₹0.00</div>
+      <div class="card-meta">
+        Recv Due: <span id="b3_toRecv" style="color:var(--income); font-weight:600;">₹0</span> | Owed: <span id="b3_toPay" style="color:var(--pending); font-weight:600;">₹0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabLedgerBtn" onclick="switchTab('ledger')">Daily Transactions</button>
+    <button class="tab-btn" id="tabSplitsBtn" onclick="switchTab('splits')">Inter-Branch Split Dues &amp; Settlements</button>
+    <button class="tab-btn" id="tabReportsBtn" onclick="switchTab('reports')">📊 Financial Reports &amp; Statements</button>
+    <button class="tab-btn" id="tabCatBtn" onclick="switchTab('categories')">Manage Categories</button>
+  </div>
+
+  <!-- TAB 1: Main Ledger & Entry Grid -->
+  <div id="tabLedger" class="main-grid">
+    <!-- Transaction Entry Form -->
+    <div class="card">
+      <h2 style="font-size: 1.05rem; margin-bottom: 12px; border-bottom:1px solid var(--border); padding-bottom:6px; color:var(--primary); font-weight:700;">
+        Voucher Entry
+      </h2>
+      <form id="txForm" onsubmit="handleTransactionSubmit(event)">
+        <label>Transaction Nature</label>
+        <select id="txType" onchange="handleTypeChange()">
+          <option value="expense">Expense (Outflow)</option>
+          <option value="income">Income (Union Subscription / Contribution)</option>
+        </select>
+
+        <label>Date</label>
+        <input type="date" id="txDate" required />
+
+        <label>Responsible Branch (Cash Account)</label>
+        <select id="txBranch" onchange="handleBranchChange()">
+          <!-- Populated based on active user role -->
+        </select>
+
+        <label>Expense Allocation Scheme</label>
+        <select id="allocationScheme" onchange="handleSchemeChange()">
+          <option value="SINGLE">Single Branch (100% Internal to Chosen Branch)</option>
+          <option value="SPLIT_RATIO" selected>⚡ Split Among All 3 Branches (50:25:25 Standard)</option>
+          <option value="SPLIT_EQUAL">Equal Split Among All 3 Branches (1/3 each)</option>
+          <option value="SPLIT_CUSTOM">Custom Rupee Split (₹)</option>
+        </select>
+
+        <!-- Dynamic Split Breakdown Box -->
+        <div class="split-config" id="splitConfigBox">
+          <div style="font-size:0.75rem; font-weight:700; margin-bottom:6px; color:var(--primary); text-transform:uppercase;">
+            Split Allocation Breakdown (Standard 50:25:25)
+          </div>
+          <div class="split-row">
+            <span>AIPEU Group C (P3) [50%]:</span>
+            <input type="number" id="split_amt_b1" step="0.01" min="0" oninput="validateCustomSplit()" />
+          </div>
+          <div class="split-row">
+            <span>Postman / MTS [25%]:</span>
+            <input type="number" id="split_amt_b2" step="0.01" min="0" oninput="validateCustomSplit()" />
+          </div>
+          <div class="split-row">
+            <span>AIGDSU [25%]:</span>
+            <input type="number" id="split_amt_b3" step="0.01" min="0" oninput="validateCustomSplit()" />
+          </div>
+          <div id="splitNote" style="font-size:0.72rem; margin-top:6px; font-weight:600;"></div>
+        </div>
+
+        <label>Category</label>
+        <select id="txCategory"></select>
+
+        <label>Total Amount (₹)</label>
+        <input type="number" id="txAmount" step="0.01" min="0.01" placeholder="0.00" required oninput="calculateSplits()" />
+
+        <label>Description / Voucher Number</label>
+        <textarea id="txDesc" rows="2" placeholder="e.g., Mavelikara Divisional Council Hall rent, Bill #104" required></textarea>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px; padding:11px; font-weight:700;">
+          Post Voucher to Ledger
+        </button>
+      </form>
+    </div>
+
+    <!-- Ledger Table -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <h2 style="font-size: 1.05rem; font-weight:700;">Audited Ledger Entries</h2>
+        <div style="display:flex; gap:6px;">
+          <select id="filterBranch" onchange="renderTable()" style="width:auto;">
+            <option value="ALL">All Branches</option>
+            <option value="AIPEU GROUP C P3">AIPEU GROUP C P3</option>
+            <option value="POSTMAN/MTS">POSTMAN/MTS</option>
+            <option value="AIGDSU">AIGDSU</option>
+          </select>
+          <select id="filterType" onchange="renderTable()" style="width:auto;">
+            <option value="ALL">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Paid / Credited By</th>
+              <th>Category &amp; Note</th>
+              <th>Total (₹)</th>
+              <th>Allocation Breakdown</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Inter-Branch Settlements -->
+  <div id="tabSplits" class="card" style="display:none;">
+    <h2 style="font-size: 1.05rem; margin-bottom: 6px; color:var(--primary); font-weight:700;">
+      Inter-Branch Split Dues &amp; Reimbursement Recoveries (50:25:25)
+    </h2>
+    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">
+      When one branch pays a joint expenditure up-front (split into 50% for AIPEU Group C, 25% for Postman/MTS, and 25% for AIGDSU), the other branches' obligations appear here. The creditor branch treasurer can mark each branch's share as received individually once reimbursed.
+    </p>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Voucher Details</th>
+            <th>Upfront Paying Branch</th>
+            <th>Total Bill (₹)</th>
+            <th>Debtor Branch &amp; Share</th>
+            <th>Settlement Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="splitsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: Reports and Statements View -->
+  <div id="tabReports" class="card" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+      <div>
+        <h2 style="font-size: 1.15rem; color:var(--primary); font-weight:800;">FINANCIAL REPORTS &amp; AUDIT STATEMENTS</h2>
+        <p style="font-size:0.8rem; color:var(--text-muted);">Generate monthly, annual financial year, or custom period statements for individual branches or the consolidated division.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Save PDF</button>
+        <button class="btn btn-success" onclick="exportReportCSV()">📥 Export Statement CSV</button>
+      </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="report-filter-bar">
+      <div>
+        <label class="form-label">Branch Scope</label>
+        <select id="repBranch" onchange="generateReport()">
+          <option value="ALL">All Branches (Consolidated Division)</option>
+          <option value="AIPEU GROUP C P3">AIPEU GROUP C P3</option>
+          <option value="POSTMAN/MTS">POSTMAN/MTS</option>
+          <option value="AIGDSU">AIGDSU</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label">Period Type</label>
+        <select id="repPeriodType" onchange="updatePeriodInputs(); generateReport();">
+          <option value="MONTHLY">Monthly Report</option>
+          <option value="FIN_YEAR" selected>Financial Year (Apr - Mar)</option>
+          <option value="CAL_YEAR">Calendar Year (Jan - Dec)</option>
+          <option value="CUSTOM">Custom Date Range</option>
+        </select>
+      </div>
+
+      <!-- Monthly Selector Container -->
+      <div id="repMonthGroup" style="display:none;">
+        <label class="form-label">Select Month &amp; Year</label>
+        <div style="display:flex; gap:6px;">
+          <select id="repMonthSelect" onchange="generateReport()">
+            <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+            <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+            <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+            <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+          </select>
+          <select id="repMonthYearSelect" onchange="generateReport()" style="width:100px;">
+            <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Financial Year Container -->
+      <div id="repFinYearGroup">
+        <label class="form-label">Select Financial Year</label>
+        <select id="repFinYearSelect" onchange="generateReport()">
+          <option value="2023-2024">FY 2023-24 (01 Apr 2023 - 31 Mar 2024)</option>
+          <option value="2024-2025">FY 2024-25 (01 Apr 2024 - 31 Mar 2025)</option>
+          <option value="2025-2026">FY 2025-26 (01 Apr 2025 - 31 Mar 2026)</option>
+          <option value="2026-2027" selected>FY 2026-27 (01 Apr 2026 - 31 Mar 2027)</option>
+        </select>
+      </div>
+
+      <!-- Calendar Year Container -->
+      <div id="repCalYearGroup" style="display:none;">
+        <label class="form-label">Select Year</label>
+        <select id="repCalYearSelect" onchange="generateReport()">
+          <option value="2024">2024 (Jan - Dec)</option>
+          <option value="2025">2025 (Jan - Dec)</option>
+          <option value="2026" selected>2026 (Jan - Dec)</option>
+          <option value="2027">2027 (Jan - Dec)</option>
+        </select>
+      </div>
+
+      <!-- Custom Date Range -->
+      <div id="repCustomGroup" style="display:none; grid-column: span 2;">
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;">
+            <label class="form-label">From Date</label>
+            <input type="date" id="repFromDate" onchange="generateReport()" />
+          </div>
+          <div style="flex:1;">
+            <label class="form-label">To Date</label>
+            <input type="date" id="repToDate" onchange="generateReport()" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn btn-primary" style="height:38px; width:100%;" onclick="generateReport()">Generate Statement</button>
+      </div>
+    </div>
+
+    <!-- Formal Printable Report Sheet -->
+    <div class="report-sheet" id="printableReportArea">
+      <!-- Formal Union Header -->
+      <div class="report-header-formal">
+        <div class="report-logo-circle">
+          <svg style="width: 100%; height: 100%;" viewBox="0 0 400 400">
+            <use href="#nfpe-official-logo"/>
+          </svg>
+        </div>
+        <h2 style="font-size:1.3rem; font-weight:800; color:var(--primary); letter-spacing:0.8px;">NATIONAL FEDERATION OF POSTAL EMPLOYEES (NFPE)</h2>
+        <h3 style="font-size:1.05rem; font-weight:700; color:#333;">MAVELIKARA POSTAL DIVISIONAL UNION</h3>
+        <div style="font-size:0.9rem; font-weight:700; color:#444; margin-top:4px;" id="repReportTitle">STATEMENT OF ACCOUNTS</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;" id="repReportPeriodLabel">Period: ...</div>
+      </div>
+
+      <!-- Metadata Box -->
+      <div class="report-meta-grid">
+        <div><strong>Branch / Scope:</strong> <span id="repMetaBranch">...</span></div>
+        <div><strong>Statement Date:</strong> <span id="repMetaDate">...</span></div>
+        <div><strong>Generated By:</strong> <span id="repMetaUser">...</span></div>
+        <div><strong>Vouchers Audited:</strong> <span id="repMetaCount">0 Records</span></div>
+      </div>
+
+      <!-- Executive Financial Summary Cards -->
+      <div class="report-summary-boxes">
+        <div class="rep-stat-card">
+          <div class="card-title">Opening Balance</div>
+          <div class="rep-stat-val" id="repOpeningBal" style="color:var(--text);">₹0.00</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Prior period carry-forward</div>
+        </div>
+        <div class="rep-stat-card">
+          <div class="card-title">Total Inflows (Income)</div>
+          <div class="rep-stat-val" id="repTotalIncome" style="color:var(--income);">₹0.00</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Subscriptions &amp; Receipts</div>
+        </div>
+        <div class="rep-stat-card">
+          <div class="card-title">Total Outflows (Expenses)</div>
+          <div class="rep-stat-val" id="repTotalExpense" style="color:var(--expense);">₹0.00</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Direct Paid &amp; Absorbed</div>
+        </div>
+        <div class="rep-stat-card">
+          <div class="card-title">Net Surplus / (Deficit)</div>
+          <div class="rep-stat-val" id="repNetSurplus">₹0.00</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">For the selected duration</div>
+        </div>
+        <div class="rep-stat-card">
+          <div class="card-title">Closing Balance</div>
+          <div class="rep-stat-val" id="repClosingBal" style="color:var(--primary);">₹0.00</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Net position at period end</div>
+        </div>
+      </div>
+
+      <!-- Split Expense Position Breakdown for Branch (if applicable) -->
+      <div id="repSplitPositionBox" style="display:none; background:#fff8f8; border:1px solid #ffd5d5; padding:12px 16px; border-radius:8px; margin-bottom:18px;">
+        <h4 style="font-size:0.85rem; color:var(--primary); font-weight:700; margin-bottom:4px; text-transform:uppercase;">
+          Shared Expense (50:25:25) Outstanding Dues Status (as of Period End)
+        </h4>
+        <div style="display:flex; justify-content:space-between; font-size:0.82rem; flex-wrap:wrap; gap:10px;">
+          <div>Reimbursements Pending to Recover from other branches: <strong id="repSplitRecv" style="color:var(--income);">₹0.00</strong></div>
+          <div>Pending Reimbursements Owed to other branches: <strong id="repSplitPay" style="color:var(--pending);">₹0.00</strong></div>
+        </div>
+      </div>
+
+      <!-- Category-wise Aggregation Table -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+        <div>
+          <h4 style="font-size:0.85rem; font-weight:700; color:var(--income); border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:8px; text-transform:uppercase;">
+            Category-wise Inflow (Income)
+          </h4>
+          <table style="width:100%;">
+            <thead><tr><th>Category</th><th style="text-align:right;">Amount (₹)</th></tr></thead>
+            <tbody id="repCatIncomeBody"></tbody>
+          </table>
+        </div>
+        <div>
+          <h4 style="font-size:0.85rem; font-weight:700; color:var(--expense); border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:8px; text-transform:uppercase;">
+            Category-wise Outflow (Expenses)
+          </h4>
+          <table style="width:100%;">
+            <thead><tr><th>Category</th><th style="text-align:right;">Amount (₹)</th></tr></thead>
+            <tbody id="repCatExpenseBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Itemized Ledger Vouchers Table -->
+      <div>
+        <h4 style="font-size:0.85rem; font-weight:700; color:#333; border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:8px; text-transform:uppercase;">
+          Itemized Voucher Ledger Entries for Period
+        </h4>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Ref ID</th>
+                <th>Nature</th>
+                <th>Branch Account</th>
+                <th>Category &amp; Remarks</th>
+                <th style="text-align:right;">Income (₹)</th>
+                <th style="text-align:right;">Expense (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="repTxBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Signature Block for Audit Verification -->
+      <div class="signature-container">
+        <div>
+          <div class="sig-line">Branch Treasurer</div>
+          <div class="sig-role">Prepared &amp; Verified By</div>
+        </div>
+        <div>
+          <div class="sig-line">Branch Secretary</div>
+          <div class="sig-role">Countersigned By</div>
+        </div>
+        <div>
+          <div class="sig-line">Divisional General Secretary / Auditor</div>
+          <div class="sig-role">Audited &amp; Approved By</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Category Management -->
+  <div id="tabCategories" class="card" style="display:none; max-width:680px;">
+    <h2 style="font-size: 1.05rem; margin-bottom: 12px; border-bottom:1px solid var(--border); padding-bottom:6px; color:var(--primary); font-weight:700;">
+      NFPE Mavelikara Income &amp; Expense Heads
+    </h2>
+    <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+      <select id="newCatType" style="width:140px;">
+        <option value="income">Income Head</option>
+        <option value="expense">Expense Head</option>
+      </select>
+      <input type="text" id="newCatName" placeholder="New Category Title (e.g. Strike Relief Fund)" style="flex:1; min-width:200px;" />
+      <button class="btn btn-primary" onclick="addCategory()">Add Head</button>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Category Name</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="catTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Password Change Modal -->
+  <div id="pwdModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <h3 style="margin-bottom:12px; font-size:1.1rem; color:var(--primary); font-weight:700;">Update Role Passwords</h3>
+      <label>Select Role</label>
+      <select id="pwdRoleSelect">
+        <option value="b1">Branch 1: AIPEU GROUP C P3</option>
+        <option value="b2">Branch 2: POSTMAN/MTS</option>
+        <option value="b3">Branch 3: AIGDSU</option>
+        <option value="admin">Divisional General Secretary</option>
+      </select>
+      <label>New Password</label>
+      <input type="password" id="newPwdValue" placeholder="Enter new password" />
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+        <button class="btn btn-outline" onclick="closePasswordSettings()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveNewPassword()">Save Password</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Constants
+    const B1 = 'AIPEU GROUP C P3';
+    const B2 = 'POSTMAN/MTS';
+    const B3 = 'AIGDSU';
+
+    const DEFAULT_PASSWORDS = {
+      b1: 'b1pass',
+      b2: 'b2pass',
+      b3: 'b3pass',
+      admin: 'adminpass'
+    };
+
+    const DEFAULT_CATEGORIES = [
+      { id: 'c1', type: 'income', name: 'Monthly Membership Subscription' },
+      { id: 'c2', type: 'income', name: 'Legal Defense Fund Contribution' },
+      { id: 'c3', type: 'income', name: 'Conference Delegate Fee' },
+      { id: 'c4', type: 'income', name: 'Special Donation / Union Aid' },
+      { id: 'c5', type: 'expense', name: 'Conference & Hall Booking' },
+      { id: 'c6', type: 'expense', name: 'Agitation, Banner & Printing' },
+      { id: 'c7', type: 'expense', name: 'Travel & Conveyance Allowance' },
+      { id: 'c8', type: 'expense', name: 'Meeting Refreshments' },
+      { id: 'c9', type: 'expense', name: 'Postage & Telegram / Courier' },
+      { id: 'c10', type: 'expense', name: 'Circle / CHQ Quota Remittance' }
+    ];
+
+    // LocalStorage keys
+    const KEYS = {
+      TX: 'NFPE_MAVELIKARA_TXS',
+      CATS: 'NFPE_MAVELIKARA_CATS',
+      AUTH: 'NFPE_MAVELIKARA_AUTH',
+      SESSION: 'NFPE_MAVELIKARA_ACTIVE_USER'
+    };
+
+    // State variables
+    let transactions = JSON.parse(localStorage.getItem(KEYS.TX)) || [];
+    let categories = JSON.parse(localStorage.getItem(KEYS.CATS)) || DEFAULT_CATEGORIES;
+    let authConfig = JSON.parse(localStorage.getItem(KEYS.AUTH)) || DEFAULT_PASSWORDS;
+    let currentUser = JSON.parse(sessionStorage.getItem(KEYS.SESSION)) || null;
+
+    // Report State for CSV Export
+    let currentReportTransactions = [];
+    let currentReportSummary = {};
+    let currentReportMeta = {};
+
+    // Lifecycle
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('txDate').valueAsDate = new Date();
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('repFromDate').value = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0,10);
+      document.getElementById('repToDate').value = today;
+
+      if (!currentUser) {
+        document.getElementById('loginModal').style.display = 'flex';
+      } else {
+        document.getElementById('loginModal').style.display = 'none';
+        setupUserInterface();
+      }
+    });
+
+    // Authentication Handlers
+    function handleLogin(e) {
+      e.preventDefault();
+      const role = document.getElementById('loginRole').value;
+      const pass = document.getElementById('loginPass').value;
+
+      if (authConfig[role] === pass) {
+        let branchAssigned = null;
+        let roleName = 'Divisional General Secretary';
+        if (role === 'b1') { branchAssigned = B1; roleName = 'Treasurer: ' + B1; }
+        if (role === 'b2') { branchAssigned = B2; roleName = 'Treasurer: ' + B2; }
+        if (role === 'b3') { branchAssigned = B3; roleName = 'Treasurer: ' + B3; }
+
+        currentUser = { role, branch: branchAssigned, name: roleName };
+        sessionStorage.setItem(KEYS.SESSION, JSON.stringify(currentUser));
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginModal').style.display = 'none';
+        setupUserInterface();
+      } else {
+        alert('Incorrect password. Please verify the branch role password.');
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem(KEYS.SESSION);
+      currentUser = null;
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function setupUserInterface() {
+      document.getElementById('userDisplay').innerText = currentUser.name;
+      populateBranchDropdown();
+      populateCategoryDropdown();
+      handleSchemeChange();
+      setupReportBranchSelector();
+      renderAll();
+    }
+
+    function setupReportBranchSelector() {
+      const repBranch = document.getElementById('repBranch');
+      if (currentUser.role !== 'admin') {
+        // Default to their own branch
+        repBranch.value = currentUser.branch;
+      }
+    }
+
+    // Strict Role-Based Branch Form Population
+    function populateBranchDropdown() {
+      const branchSel = document.getElementById('txBranch');
+      branchSel.innerHTML = '';
+
+      if (currentUser.role === 'admin') {
+        branchSel.innerHTML = `
+          <option value="${B1}">${B1}</option>
+          <option value="${B2}">${B2}</option>
+          <option value="${B3}">${B3}</option>
+        `;
+      } else {
+        const opt = document.createElement('option');
+        opt.value = currentUser.branch;
+        opt.innerText = currentUser.branch;
+        branchSel.appendChild(opt);
+      }
+      handleBranchChange();
+    }
+
+    function handleTypeChange() {
+      const type = document.getElementById('txType').value;
+      const scheme = document.getElementById('allocationScheme');
+      if (type === 'income') {
+        scheme.value = 'SINGLE';
+        scheme.disabled = true;
+      } else {
+        scheme.disabled = false;
+        scheme.value = 'SPLIT_RATIO';
+      }
+      handleSchemeChange();
+      populateCategoryDropdown();
+    }
+
+    function handleBranchChange() {
+      calculateSplits();
+    }
+
+    function handleSchemeChange() {
+      const scheme = document.getElementById('allocationScheme').value;
+      const box = document.getElementById('splitConfigBox');
+      box.style.display = (scheme === 'SINGLE') ? 'none' : 'block';
+
+      const isCustom = scheme === 'SPLIT_CUSTOM';
+      document.getElementById('split_amt_b1').readOnly = !isCustom;
+      document.getElementById('split_amt_b2').readOnly = !isCustom;
+      document.getElementById('split_amt_b3').readOnly = !isCustom;
+
+      calculateSplits();
+    }
+
+    function calculateSplits() {
+      const total = parseFloat(document.getElementById('txAmount').value) || 0;
+      const scheme = document.getElementById('allocationScheme').value;
+      const note = document.getElementById('splitNote');
+
+      const b1In = document.getElementById('split_amt_b1');
+      const b2In = document.getElementById('split_amt_b2');
+      const b3In = document.getElementById('split_amt_b3');
+
+      if (scheme === 'SPLIT_RATIO') {
+        // Standard NFPE Ratio: 50% for Group C P3, 25% for Postman/MTS, 25% for AIGDSU
+        const s1 = parseFloat((total * 0.50).toFixed(2));
+        const s2 = parseFloat((total * 0.25).toFixed(2));
+        const s3 = parseFloat((total - s1 - s2).toFixed(2));
+        b1In.value = s1; b2In.value = s2; b3In.value = s3;
+        note.innerHTML = `<span style="color:var(--income)">Applied Ratio 50:25:25 (₹${s1} / ₹${s2} / ₹${s3})</span>`;
+      } else if (scheme === 'SPLIT_EQUAL') {
+        const s1 = parseFloat((total / 3).toFixed(2));
+        const s2 = parseFloat((total / 3).toFixed(2));
+        const s3 = parseFloat((total - s1 - s2).toFixed(2));
+        b1In.value = s1; b2In.value = s2; b3In.value = s3;
+        note.innerHTML = `<span style="color:var(--income)">Equal 33.33% each (₹${s1} / ₹${s2} / ₹${s3})</span>`;
+      } else if (scheme === 'SPLIT_CUSTOM') {
+        validateCustomSplit();
+      }
+    }
+
+    function validateCustomSplit() {
+      const total = parseFloat(document.getElementById('txAmount').value) || 0;
+      const s1 = parseFloat(document.getElementById('split_amt_b1').value) || 0;
+      const s2 = parseFloat(document.getElementById('split_amt_b2').value) || 0;
+      const s3 = parseFloat(document.getElementById('split_amt_b3').value) || 0;
+      const sum = s1 + s2 + s3;
+      const note = document.getElementById('splitNote');
+
+      if (Math.abs(sum - total) > 0.05) {
+        note.innerHTML = `<span style="color:var(--expense)">Sum ₹${sum.toFixed(2)} does not equal Total ₹${total.toFixed(2)}</span>`;
+      } else {
+        note.innerHTML = `<span style="color:var(--income)">Custom allocation balanced.</span>`;
+      }
+    }
+
+    function populateCategoryDropdown() {
+      const type = document.getElementById('txType').value;
+      const sel = document.getElementById('txCategory');
+      sel.innerHTML = '';
+      categories.filter(c => c.type === type).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name;
+        opt.innerText = c.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderCategoryTable() {
+      const tbody = document.getElementById('catTableBody');
+      tbody.innerHTML = '';
+      categories.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="badge ${c.type === 'income' ? 'badge-income' : 'badge-expense'}">${c.type.toUpperCase()}</span></td>
+          <td>${c.name}</td>
+          <td>
+            <button class="btn btn-danger" style="padding:2px 8px; font-size:0.72rem;" onclick="deleteCategory('${c.id}')">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addCategory() {
+      const name = document.getElementById('newCatName').value.trim();
+      const type = document.getElementById('newCatType').value;
+      if (!name) return alert('Category title cannot be empty.');
+      categories.push({ id: 'c_' + Date.now(), type, name });
+      saveCategories();
+      document.getElementById('newCatName').value = '';
+      populateCategoryDropdown();
+      renderCategoryTable();
+    }
+
+    function deleteCategory(id) {
+      if (confirm('Delete this category?')) {
+        categories = categories.filter(c => c.id !== id);
+        saveCategories();
+        populateCategoryDropdown();
+        renderCategoryTable();
+      }
+    }
+
+    // Transaction Submission with Strict Access Verification
+    function handleTransactionSubmit(e) {
+      e.preventDefault();
+
+      const type = document.getElementById('txType').value;
+      const payingBranch = document.getElementById('txBranch').value;
+      const totalAmount = parseFloat(document.getElementById('txAmount').value);
+      const scheme = document.getElementById('allocationScheme').value;
+      const category = document.getElementById('txCategory').value;
+      const description = document.getElementById('txDesc').value;
+      const date = document.getElementById('txDate').value;
+
+      if (currentUser.role !== 'admin' && payingBranch !== currentUser.branch) {
+        alert('Unauthorized! You can only post vouchers on behalf of ' + currentUser.branch);
+        return;
+      }
+
+      let allocations = {};
+      let settlements = [];
+
+      if (type === 'income' || scheme === 'SINGLE') {
+        allocations[payingBranch] = totalAmount;
+      } else {
+        const s1 = parseFloat(document.getElementById('split_amt_b1').value) || 0;
+        const s2 = parseFloat(document.getElementById('split_amt_b2').value) || 0;
+        const s3 = parseFloat(document.getElementById('split_amt_b3').value) || 0;
+
+        if (Math.abs((s1 + s2 + s3) - totalAmount) > 0.05) {
+          alert('Allocation sum must match the total bill amount.');
+          return;
+        }
+
+        allocations[B1] = s1;
+        allocations[B2] = s2;
+        allocations[B3] = s3;
+
+        [ { b: B1, amt: s1 }, { b: B2, amt: s2 }, { b: B3, amt: s3 } ].forEach(item => {
+          if (item.b !== payingBranch && item.amt > 0) {
+            settlements.push({
+              branch: item.b,
+              amount: item.amt,
+              settled: false,
+              settledDate: null,
+              settledNote: ''
+            });
+          }
+        });
+      }
+
+      const tx = {
+        id: 'TX_' + Date.now(),
+        date,
+        type,
+        payingBranch,
+        scheme,
+        category,
+        totalAmount,
+        description,
+        allocations,
+        settlements,
+        createdByRole: currentUser.role,
+        createdByUser: currentUser.name
+      };
+
+      transactions.unshift(tx);
+      saveTransactions();
+      renderAll();
+
+      document.getElementById('txAmount').value = '';
+      document.getElementById('txDesc').value = '';
+      handleSchemeChange();
+      alert('Voucher posted to NFPE Mavelikara ledger successfully.');
+    }
+
+    // Settlements Management
+    function markSettled(txId, targetBranch) {
+      const tx = transactions.find(t => t.id === txId);
+      if (!tx) return;
+
+      if (currentUser.role !== 'admin' && currentUser.branch !== tx.payingBranch) {
+        alert(`Permission Denied! Only the creditor branch (${tx.payingBranch}) or Divisional General Secretary can confirm receipt of reimbursement.`);
+        return;
+      }
+
+      const settlement = tx.settlements.find(s => s.branch === targetBranch);
+      if (!settlement) return;
+
+      const note = prompt(`Confirm receipt of ₹${settlement.amount} from ${targetBranch}.\nEnter settlement remarks (Receipt # / Mode):`, 'Cash / Bank Transfer');
+      if (note === null) return;
+
+      settlement.settled = true;
+      settlement.settledDate = new Date().toISOString().slice(0, 10);
+      settlement.settledNote = note;
+
+      saveTransactions();
+      renderAll();
+    }
+
+    function deleteTx(id) {
+      const tx = transactions.find(t => t.id === id);
+      if (!tx) return;
+
+      if (currentUser.role !== 'admin' && currentUser.branch !== tx.payingBranch) {
+        alert('Permission Denied! You can only delete vouchers recorded by your branch.');
+        return;
+      }
+
+      if (confirm('Delete this voucher entry from NFPE Mavelikara records?')) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveTransactions();
+        renderAll();
+      }
+    }
+
+    function renderSummary() {
+      let totIn = 0;
+      let totOut = 0;
+
+      const stats = {
+        [B1]: { in: 0, out: 0, toRecv: 0, toPay: 0 },
+        [B2]: { in: 0, out: 0, toRecv: 0, toPay: 0 },
+        [B3]: { in: 0, out: 0, toRecv: 0, toPay: 0 }
+      };
+
+      transactions.forEach(t => {
+        if (t.type === 'income') {
+          totIn += t.totalAmount;
+          if (stats[t.payingBranch]) stats[t.payingBranch].in += t.totalAmount;
+        } else {
+          totOut += t.totalAmount;
+          if (stats[t.payingBranch]) stats[t.payingBranch].out += t.totalAmount;
+
+          if (t.settlements && t.settlements.length > 0) {
+            t.settlements.forEach(s => {
+              if (!s.settled) {
+                stats[t.payingBranch].toRecv += s.amount;
+                stats[s.branch].toPay += s.amount;
+              } else {
+                stats[t.payingBranch].out -= s.amount;
+                stats[s.branch].out += s.amount;
+              }
+            });
+          }
+        }
+      });
+
+      document.getElementById('netUnion').innerText = `₹${(totIn - totOut).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('totIn').innerText = `₹${totIn.toLocaleString('en-IN')}`;
+      document.getElementById('totOut').innerText = `₹${totOut.toLocaleString('en-IN')}`;
+
+      [ { k: B1, id: 'b1' }, { k: B2, id: 'b2' }, { k: B3, id: 'b3' } ].forEach(b => {
+        const net = stats[b.k].in - stats[b.k].out;
+        const el = document.getElementById(`${b.id}_net`);
+        el.innerText = `₹${net.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        el.style.color = net >= 0 ? 'var(--income)' : 'var(--expense)';
+        document.getElementById(`${b.id}_toRecv`).innerText = `₹${stats[b.k].toRecv.toLocaleString('en-IN')}`;
+        document.getElementById(`${b.id}_toPay`).innerText = `₹${stats[b.k].toPay.toLocaleString('en-IN')}`;
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('txTableBody');
+      const bFilter = document.getElementById('filterBranch').value;
+      const tFilter = document.getElementById('filterType').value;
+
+      tbody.innerHTML = '';
+
+      const filtered = transactions.filter(t => {
+        const matchType = tFilter === 'ALL' || t.type === tFilter;
+        let matchBranch = bFilter === 'ALL';
+        if (!matchBranch) {
+          matchBranch = t.payingBranch === bFilter || (t.allocations && t.allocations[bFilter] > 0);
+        }
+        return matchType && matchBranch;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#868e96; padding:18px;">No vouchers recorded for this filter.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(t => {
+        const tr = document.createElement('tr');
+        const badgeClass = t.type === 'income' ? 'badge-income' : 'badge-expense';
+        const bBadge = t.payingBranch === B1 ? 'badge-b1' : (t.payingBranch === B2 ? 'badge-b2' : 'badge-b3');
+
+        let allocationDesc = '';
+        if (t.scheme === 'SINGLE' || t.type === 'income') {
+          allocationDesc = `100% ${t.payingBranch}`;
+        } else {
+          allocationDesc = Object.entries(t.allocations || {})
+            .map(([b, amt]) => `${b.split(' ')[0]}: ₹${amt}`)
+            .join(' | ');
+        }
+
+        const canDelete = currentUser.role === 'admin' || currentUser.branch === t.payingBranch;
+
+        tr.innerHTML = `
+          <td>${t.date}</td>
+          <td><span class="badge ${badgeClass}">${t.type.toUpperCase()}</span></td>
+          <td><span class="badge ${bBadge}">${t.payingBranch}</span></td>
+          <td>
+            <strong>${t.category}</strong>
+            <div style="font-size:0.75rem; color:#6c757d;">${t.description}</div>
+          </td>
+          <td style="font-weight:700; ${t.type === 'income' ? 'color:var(--income)' : 'color:var(--expense)'}">
+            ${t.type === 'income' ? '+' : '-'}₹${t.totalAmount.toLocaleString('en-IN', {minimumFractionDigits:2})}
+          </td>
+          <td style="font-size:0.75rem; color:#495057;">${allocationDesc}</td>
+          <td>
+            ${canDelete ? `<button class="btn btn-danger" style="padding:2px 7px; font-size:0.7rem;" onclick="deleteTx('${t.id}')">Delete</button>` : `<span style="color:#adb5bd; font-size:0.7rem;">Restricted</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSplitsTable() {
+      const tbody = document.getElementById('splitsTableBody');
+      tbody.innerHTML = '';
+
+      let rows = 0;
+      transactions.forEach(t => {
+        if (t.settlements && t.settlements.length > 0) {
+          t.settlements.forEach(s => {
+            rows++;
+            const tr = document.createElement('tr');
+            const canConfirm = (currentUser.role === 'admin' || currentUser.branch === t.payingBranch) && !s.settled;
+
+            tr.innerHTML = `
+              <td>${t.date}</td>
+              <td><strong>${t.category}</strong><br><span style="font-size:0.75rem; color:#6c757d;">${t.description}</span></td>
+              <td><span class="badge ${t.payingBranch === B1 ? 'badge-b1' : (t.payingBranch === B2 ? 'badge-b2' : 'badge-b3')}">${t.payingBranch}</span></td>
+              <td>₹${t.totalAmount.toFixed(2)}</td>
+              <td>
+                <span class="badge ${s.branch === B1 ? 'badge-b1' : (s.branch === B2 ? 'badge-b2' : 'badge-b3')}">${s.branch}</span>
+                <div style="font-weight:700; color:var(--expense); font-size:0.85rem; margin-top:2px;">₹${s.amount.toFixed(2)}</div>
+              </td>
+              <td>
+                ${s.settled 
+                  ? `<span class="badge badge-settled">Received on ${s.settledDate}</span><div style="font-size:0.7rem; color:#495057;">${s.settledNote}</div>` 
+                  : `<span class="badge badge-pending">Reimbursement Pending</span>`}
+              </td>
+              <td>
+                ${s.settled 
+                  ? `<span style="color:var(--income); font-weight:600; font-size:0.75rem;">Settled</span>` 
+                  : (canConfirm 
+                      ? `<button class="btn btn-success" style="padding:3px 9px; font-size:0.72rem;" onclick="markSettled('${t.id}', '${s.branch}')">Mark Received</button>` 
+                      : `<span style="font-size:0.7rem; color:#868e96;">${currentUser.branch === s.branch ? 'Due to Pay' : 'Restricted'}</span>`)}
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      });
+
+      if (rows === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#868e96; padding:18px;">No shared expense split dues on record.</td></tr>`;
+      }
+    }
+
+    function updatePeriodInputs() {
+      const type = document.getElementById('repPeriodType').value;
+      document.getElementById('repMonthGroup').style.display = type === 'MONTHLY' ? 'block' : 'none';
+      document.getElementById('repFinYearGroup').style.display = type === 'FIN_YEAR' ? 'block' : 'none';
+      document.getElementById('repCalYearGroup').style.display = type === 'CAL_YEAR' ? 'block' : 'none';
+      document.getElementById('repCustomGroup').style.display = type === 'CUSTOM' ? 'block' : 'none';
+    }
+
+    function getDateRangeForReport() {
+      const type = document.getElementById('repPeriodType').value;
+      let start = '', end = '', label = '';
+
+      if (type === 'MONTHLY') {
+        const m = parseInt(document.getElementById('repMonthSelect').value, 10);
+        const y = parseInt(document.getElementById('repMonthYearSelect').value, 10);
+        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const startDate = new Date(y, m, 1);
+        const endDate = new Date(y, m + 1, 0);
+        start = startDate.toISOString().slice(0, 10);
+        end = endDate.toISOString().slice(0, 10);
+        label = `Month of ${monthNames[m]} ${y} (${start} to ${end})`;
+      } else if (type === 'FIN_YEAR') {
+        const fy = document.getElementById('repFinYearSelect').value; // e.g. "2026-2027"
+        const [y1, y2] = fy.split('-');
+        start = `${y1}-04-01`;
+        end = `${y2}-03-31`;
+        label = `Financial Year ${fy} (01 April ${y1} to 31 March ${y2})`;
+      } else if (type === 'CAL_YEAR') {
+        const y = document.getElementById('repCalYearSelect').value;
+        start = `${y}-01-01`;
+        end = `${y}-12-31`;
+        label = `Calendar Year ${y} (01 January ${y} to 31 December ${y})`;
+      } else if (type === 'CUSTOM') {
+        start = document.getElementById('repFromDate').value || '1970-01-01';
+        end = document.getElementById('repToDate').value || '2099-12-31';
+        label = `Custom Period: ${start} to ${end}`;
+      }
+
+      return { start, end, label };
+    }
+
+    function generateReport() {
+      const branch = document.getElementById('repBranch').value;
+      const { start, end, label } = getDateRangeForReport();
+
+      // Set Metadata Labels
+      document.getElementById('repReportTitle').innerText = branch === 'ALL'
+        ? `CONSOLIDATED FINANCIAL STATEMENT (ALL BRANCHES)`
+        : `BRANCH STATEMENT OF ACCOUNTS: ${branch}`;
+      document.getElementById('repReportPeriodLabel').innerText = `Period: ${label}`;
+      document.getElementById('repMetaBranch').innerText = branch === 'ALL' ? 'All Union Branches' : branch;
+      document.getElementById('repMetaDate').innerText = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      document.getElementById('repMetaUser').innerText = currentUser ? currentUser.name : 'Auditor';
+
+      // 1. Calculate Prior Opening Balance (all transactions before 'start')
+      let openingBalance = 0;
+      transactions.forEach(t => {
+        if (t.date < start) {
+          if (branch === 'ALL') {
+            if (t.type === 'income') openingBalance += t.totalAmount;
+            else openingBalance -= t.totalAmount;
+          } else {
+            // Branch specific
+            if (t.type === 'income') {
+              if (t.payingBranch === branch) openingBalance += t.totalAmount;
+            } else {
+              if (t.payingBranch === branch) {
+                openingBalance -= t.totalAmount;
+              }
+              // Consider settlements prior to start
+              if (t.settlements && t.settlements.length > 0) {
+                t.settlements.forEach(s => {
+                  if (s.settled && s.settledDate < start) {
+                    if (t.payingBranch === branch) openingBalance += s.amount; // reimbursed
+                    if (s.branch === branch) openingBalance -= s.amount; // paid share
+                  }
+                });
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Filter Transactions in Date Range
+      const periodTxs = transactions.filter(t => {
+        if (t.date < start || t.date > end) return false;
+        if (branch === 'ALL') return true;
+        // Included if paid by branch OR has allocated share for branch
+        return t.payingBranch === branch || (t.allocations && t.allocations[branch] > 0);
+      });
+
+      // Sort chronological
+      periodTxs.sort((a, b) => a.date.localeCompare(b.date));
+      currentReportTransactions = periodTxs;
+
+      // 3. Aggregate Inflows, Outflows, and Categories
+      let totalIncome = 0;
+      let totalExpense = 0;
+      const catIncome = {};
+      const catExpense = {};
+
+      let splitRecvPending = 0;
+      let splitPayPending = 0;
+
+      periodTxs.forEach(t => {
+        if (t.type === 'income') {
+          if (branch === 'ALL' || t.payingBranch === branch) {
+            totalIncome += t.totalAmount;
+            catIncome[t.category] = (catIncome[t.category] || 0) + t.totalAmount;
+          }
+        } else {
+          // Expense calculation
+          if (branch === 'ALL') {
+            totalExpense += t.totalAmount;
+            catExpense[t.category] = (catExpense[t.category] || 0) + t.totalAmount;
+          } else {
+            // For a single branch
+            if (t.payingBranch === branch) {
+              totalExpense += t.totalAmount;
+              catExpense[t.category] = (catExpense[t.category] || 0) + t.totalAmount;
+
+              // Check if reimbursements occurred during this period
+              if (t.settlements) {
+                t.settlements.forEach(s => {
+                  if (s.settled && s.settledDate >= start && s.settledDate <= end) {
+                    totalExpense -= s.amount; // net relief
+                  }
+                });
+              }
+            } else if (t.allocations && t.allocations[branch] > 0) {
+              // This branch owes a share
+              const branchSettlement = t.settlements ? t.settlements.find(s => s.branch === branch) : null;
+              if (branchSettlement && branchSettlement.settled && branchSettlement.settledDate >= start && branchSettlement.settledDate <= end) {
+                totalExpense += branchSettlement.amount;
+                catExpense[t.category] = (catExpense[t.category] || 0) + branchSettlement.amount;
+              }
+            }
+          }
+        }
+
+        // Track unsettled split position as of period
+        if (branch !== 'ALL' && t.settlements && t.settlements.length > 0) {
+          t.settlements.forEach(s => {
+            if (!s.settled) {
+              if (t.payingBranch === branch) splitRecvPending += s.amount;
+              if (s.branch === branch) splitPayPending += s.amount;
+            }
+          });
+        }
+      });
+
+      const netSurplus = totalIncome - totalExpense;
+      const closingBalance = openingBalance + netSurplus;
+
+      // Update Summary Cards
+      document.getElementById('repOpeningBal').innerText = `₹${openingBalance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('repTotalIncome').innerText = `₹${totalIncome.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('repTotalExpense').innerText = `₹${totalExpense.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      const netEl = document.getElementById('repNetSurplus');
+      netEl.innerText = `₹${netSurplus.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      netEl.style.color = netSurplus >= 0 ? 'var(--income)' : 'var(--expense)';
+
+      const closeEl = document.getElementById('repClosingBal');
+      closeEl.innerText = `₹${closingBalance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      closeEl.style.color = closingBalance >= 0 ? 'var(--primary)' : 'var(--expense)';
+
+      document.getElementById('repMetaCount').innerText = `${periodTxs.length} Records`;
+
+      // Split position box
+      const splitBox = document.getElementById('repSplitPositionBox');
+      if (branch !== 'ALL') {
+        splitBox.style.display = 'block';
+        document.getElementById('repSplitRecv').innerText = `₹${splitRecvPending.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        document.getElementById('repSplitPay').innerText = `₹${splitPayPending.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      } else {
+        splitBox.style.display = 'none';
+      }
+
+      // Render Category Tables
+      const incTbody = document.getElementById('repCatIncomeBody');
+      incTbody.innerHTML = '';
+      if (Object.keys(catIncome).length === 0) {
+        incTbody.innerHTML = `<tr><td colspan="2" style="color:#888; font-size:0.75rem;">No income records.</td></tr>`;
+      } else {
+        Object.entries(catIncome).forEach(([cat, amt]) => {
+          incTbody.innerHTML += `<tr><td>${cat}</td><td style="text-align:right; font-weight:700; color:var(--income);">₹${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td></tr>`;
+        });
+      }
+
+      const expTbody = document.getElementById('repCatExpenseBody');
+      expTbody.innerHTML = '';
+      if (Object.keys(catExpense).length === 0) {
+        expTbody.innerHTML = `<tr><td colspan="2" style="color:#888; font-size:0.75rem;">No expense records.</td></tr>`;
+      } else {
+        Object.entries(catExpense).forEach(([cat, amt]) => {
+          expTbody.innerHTML += `<tr><td>${cat}</td><td style="text-align:right; font-weight:700; color:var(--expense);">₹${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td></tr>`;
+        });
+      }
+
+      // Render Itemized Voucher Ledger
+      const txTbody = document.getElementById('repTxBody');
+      txTbody.innerHTML = '';
+      if (periodTxs.length === 0) {
+        txTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:16px; color:#888;">No transactions found in this period.</td></tr>`;
+      } else {
+        periodTxs.forEach(t => {
+          const isInc = t.type === 'income';
+          let incVal = '-';
+          let expVal = '-';
+
+          if (isInc) {
+            incVal = `+₹${t.totalAmount.toLocaleString('en-IN', {minimumFractionDigits:2})}`;
+          } else {
+            expVal = `-₹${t.totalAmount.toLocaleString('en-IN', {minimumFractionDigits:2})}`;
+          }
+
+          txTbody.innerHTML += `
+            <tr>
+              <td>${t.date}</td>
+              <td style="font-family:monospace; font-size:0.75rem;">${t.id}</td>
+              <td><span class="badge ${isInc ? 'badge-income' : 'badge-expense'}">${t.type.toUpperCase()}</span></td>
+              <td>${t.payingBranch}</td>
+              <td><strong>${t.category}</strong><br><span style="font-size:0.75rem; color:#6c757d;">${t.description}</span></td>
+              <td style="text-align:right; color:var(--income); font-weight:700;">${incVal}</td>
+              <td style="text-align:right; color:var(--expense); font-weight:700;">${expVal}</td>
+            </tr>
+          `;
+        });
+      }
+
+      // Store in memory for CSV export
+      currentReportSummary = { openingBalance, totalIncome, totalExpense, netSurplus, closingBalance, label, branch };
+    }
+
+    function exportReportCSV() {
+      if (!currentReportTransactions || currentReportTransactions.length === 0) {
+        alert('Please generate a statement with transaction data first.');
+        return;
+      }
+
+      const { branch, label, openingBalance, totalIncome, totalExpense, netSurplus, closingBalance } = currentReportSummary;
+
+      let csv = `NATIONAL FEDERATION OF POSTAL EMPLOYEES (NFPE) - MAVELIKARA DIVISION\n`;
+      csv += `Statement Scope,"${branch}"\n`;
+      csv += `Period,"${label}"\n`;
+      csv += `Opening Balance,${openingBalance}\n`;
+      csv += `Total Inflows,${totalIncome}\n`;
+      csv += `Total Outflows,${totalExpense}\n`;
+      csv += `Net Surplus / Deficit,${netSurplus}\n`;
+      csv += `Closing Balance,${closingBalance}\n\n`;
+
+      csv += `Date,Voucher ID,Type,Branch Account,Category,Description,Amount\n`;
+      currentReportTransactions.forEach(t => {
+        csv += `"${t.date}","${t.id}","${t.type}","${t.payingBranch}","${t.category}","${t.description.replace(/"/g, '""')}","${t.totalAmount}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `NFPE_Report_${branch.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function renderAll() {
+      renderSummary();
+      renderTable();
+      renderSplitsTable();
+      renderCategoryTable();
+      generateReport();
+    }
+
+    // Tabs
+    function switchTab(tabId) {
+      document.getElementById('tabLedger').style.display = tabId === 'ledger' ? 'grid' : 'none';
+      document.getElementById('tabSplits').style.display = tabId === 'splits' ? 'block' : 'none';
+      document.getElementById('tabReports').style.display = tabId === 'reports' ? 'block' : 'none';
+      document.getElementById('tabCategories').style.display = tabId === 'categories' ? 'block' : 'none';
+
+      document.getElementById('tabLedgerBtn').className = 'tab-btn ' + (tabId === 'ledger' ? 'active' : '');
+      document.getElementById('tabSplitsBtn').className = 'tab-btn ' + (tabId === 'splits' ? 'active' : '');
+      document.getElementById('tabReportsBtn').className = 'tab-btn ' + (tabId === 'reports' ? 'active' : '');
+      document.getElementById('tabCatBtn').className = 'tab-btn ' + (tabId === 'categories' ? 'active' : '');
+
+      if (tabId === 'reports') {
+        generateReport();
+      }
+    }
+
+    // Password Settings Modal
+    function openPasswordSettings() {
+      document.getElementById('pwdModal').style.display = 'flex';
+    }
+    function closePasswordSettings() {
+      document.getElementById('pwdModal').style.display = 'none';
+      document.getElementById('newPwdValue').value = '';
+    }
+    function saveNewPassword() {
+      const role = document.getElementById('pwdRoleSelect').value;
+      const pwd = document.getElementById('newPwdValue').value.trim();
+      if (!pwd) return alert('Password cannot be empty.');
+      authConfig[role] = pwd;
+      localStorage.setItem(KEYS.AUTH, JSON.stringify(authConfig));
+      alert(`Password updated for ${role.toUpperCase()}`);
+      closePasswordSettings();
+    }
+
+    // Persistence
+    function saveTransactions() {
+      localStorage.setItem(KEYS.TX, JSON.stringify(transactions));
+    }
+    function saveCategories() {
+      localStorage.setItem(KEYS.CATS, JSON.stringify(categories));
+    }
+
+    // Global Export CSV
+    function exportCSV() {
+      if (transactions.length === 0) return alert('No records to export.');
+      let csv = 'ID,Date,Type,PaidBy_Branch,Category,Description,Total_Amount,AIPEU_P3_Share,POSTMAN_MTS_Share,AIGDSU_Share,Logged_By\n';
+      transactions.forEach(t => {
+        const s1 = (t.allocations && t.allocations[B1]) || 0;
+        const s2 = (t.allocations && t.allocations[B2]) || 0;
+        const s3 = (t.allocations && t.allocations[B3]) || 0;
+        csv += `"${t.id}","${t.date}","${t.type}","${t.payingBranch}","${t.category}","${t.description.replace(/"/g, '""')}","${t.totalAmount}","${s1}","${s2}","${s3}","${t.createdByUser || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `NFPE_Mavelikara_Ledger_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    // Backup & Restore
+    function backupJSON() {
+      const data = { transactions, categories, authConfig };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `NFPE_Mavelikara_Backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function restoreJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = JSON.parse(evt.target.result);
+          if (data.transactions && Array.isArray(data.transactions)) {
+            transactions = data.transactions;
+            if (data.categories) categories = data.categories;
+            if (data.authConfig) authConfig = data.authConfig;
+            saveTransactions();
+            saveCategories();
+            localStorage.setItem(KEYS.AUTH, JSON.stringify(authConfig));
+            renderAll();
+            alert('NFPE Mavelikara ledger data restored successfully.');
+          } else {
+            alert('Invalid backup file schema.');
+          }
+        } catch(err) {
+          alert('Failed to parse backup JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
